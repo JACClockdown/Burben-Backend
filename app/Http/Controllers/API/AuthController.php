@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\CustomResponse;
+use App\Rules\RfcValidator;
 
 
 class AuthController extends Controller
@@ -57,13 +58,14 @@ class AuthController extends Controller
     {
         
         
+        
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
             'phone' => 'required',
             'email' => 'required|max:255|email',
             'password' => 'required',
             'password_confirm' => 'required',
-            'rfc' => 'required',
+            'rfc' => ['required', new RfcValidator],
             'notes' => 'required',
         ],
         [   
@@ -75,7 +77,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return  CustomResponse::error($validator->errors(), $request->all() );
         }
-
+       
         try{
         
             $user = DB::transaction(function() use($request){
@@ -100,6 +102,7 @@ class AuthController extends Controller
             return  CustomResponse::error("Error to create", $e->getMessage() );
 
         }
+           
         
     }
 

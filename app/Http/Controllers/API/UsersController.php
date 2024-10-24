@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\CustomResponse;
 use Illuminate\Support\Facades\Hash;
+use App\Rules\RfcValidator;
 
 class UsersController extends Controller
 {
@@ -36,7 +37,7 @@ class UsersController extends Controller
             'email' => 'nullable|max:255|email',
             'password' => 'required',
             'password_confirm' => 'nullable',
-            'rfc' => 'required',
+            'rfc' => ['required', new RfcValidator],
             'notes' => 'nullable',
         ],
         [   

@@ -22,28 +22,37 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         
-
-        $request->validate([
-            'email' => 'required|string|email',
+        $validator =  Validator::make( $request->all(), [
+            'email' => 'required|string|email|exists:users,email',
             'password' => 'required|string',
         ]);
-
-        $credentials = $request->only('email', 'password');
-
-        $token = Auth::attempt($credentials);
         
-        if (!$token) {
-            return CustomResponse::error('Unauthorized');
+        if ($validator->fails()) {
+            return  CustomResponse::error($validator->errors(), $request->all() );
         }
 
-        $user = Auth::user();
+        try{
 
-        return CustomResponse::success([
-            'user' => $user,
-            'token' => $token,
-            'type' => 'bearer',
+            $credentials = $request->only('email', 'password');
+
+            $token = Auth::attempt($credentials);
+            
+            if (!$token) {
+                return CustomResponse::error('Unauthorized');
+            }
+
+            $user = Auth::user();
+
+            return CustomResponse::success([
+                'user' => $user,
+                'token' => $token,
+                'type' => 'bearer',
+            
+            ]);
+        }catch(\Exception $e){
+            dd($e->getMessage());
+        }
         
-        ]);
     }
 
     public function me()
